@@ -5,7 +5,10 @@ import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 
+# Define the API key and endpoint for AI summarization
+ai_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyCw2B5ou8onk1BabogyppBYX_Ff2oalQ00"  # Replace with your actual API key
 
+# Function to fetch articles from a website
 def fetch_articles_from_website(url):
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36"
@@ -31,6 +34,9 @@ def fetch_articles_from_website(url):
             description_tag = article_section.find('p')
             description = description_tag.get_text(strip=True) if description_tag else "No description available."
 
+            # Use AI to generate a single paragraph description
+            description = generate_ai_description(description)
+
             # Find image
             img_tag = article_section.find('img')
             image_url = urljoin(url, img_tag['src']) if img_tag and img_tag.get('src') else None
@@ -48,6 +54,50 @@ def fetch_articles_from_website(url):
         print(f"Error fetching the website: {e}")
         return []
 
+# Function to generate a single paragraph description using AI
+def generate_ai_description(text):
+    payload = {
+        "contents": [
+            {
+                "parts": [
+                    {"text": f"Summarize the following into a concise paragraph: {text}"}
+                ]
+            }
+        ]
+    }
+    headers = {
+        "Content-Type": "application/json",
+    }
+    try:
+        response = requests.post(ai_url, headers=headers, json=payload)
+        
+        # Check if the response is successful
+        if response.status_code == 200:
+            ai_response = response.json()
+            
+            # Print the response to understand its structure
+            print("AI Response:", ai_response)
+
+            # Check if the expected key exists in the response
+            if 'candidates' in ai_response and len(ai_response['candidates']) > 0:
+                content = ai_response['candidates'][0].get('content', {})
+                if 'parts' in content and len(content['parts']) > 0:
+                    return content['parts'][0].get('text', '').strip()
+                else:
+                    print("Error: 'parts' not found in 'content'.")
+                    return text  # Return original text if the AI response is not as expected
+            else:
+                print("Error: 'candidates' not found in the response.")
+                return text  # Return original text if the AI response is not as expected
+        else:
+            print(f"AI API error: {response.status_code} - {response.text}")
+            return text  # Fallback to original description if AI fails
+            
+    except requests.exceptions.RequestException as e:
+        print(f"Error communicating with AI API: {e}")
+        return text  # Fallback to original description if AI request fails
+
+# Function to send an email with the fetched articles
 def send_email(articles, sender_email, recipient_email, smtp_server, smtp_port, login, password):
     try:
         # Create email content
@@ -172,8 +222,8 @@ def send_email(articles, sender_email, recipient_email, smtp_server, smtp_port, 
         font-size: 14px; /* Increase link font size */
     }
 
-    .disclaimer {
-        font-size: 12px; /* Adjust text size for clarity on larger screens */
+    .footer p{
+        font-size: 12px;
     }
 }
         </style></head>
@@ -211,39 +261,28 @@ def send_email(articles, sender_email, recipient_email, smtp_server, smtp_port, 
                         </td>
                 </tr>
             </table>
-                        <p class="disclaimer">The information contained in this communication is intended solely for the use of the individual or entity to whom it is addressed and others authorized to receive it. It may contain confidential or legally privileged information. If you are not the intended recipient you are hereby notified that any disclosure, copying, distribution or taking any action in reliance on the contents of this information is strictly prohibited and may be unlawful. If you have received this communication in error, please notify us immediately by responding to this email and then delete it from your system. The firm is neither liable for the proper and complete transmission of the information contained in this communication nor for any delay in its receipt.</p>
+                        <p class="disclaimer">The information contained in this communication is intended solely for the use of the individual or entity to whom it is addressed and may contain confidential or privileged material. If you are not the intended recipient, please notify the sender immediately and delete this communication. Any unauthorized use, disclosure, or distribution of the information contained in this communication is prohibited.</p>
         </div>
-    </div></body></html>"""
+        </body>
+        </html>
+        """
 
-        msg = MIMEMultipart()
-        msg['From'] = sender_email
-        msg['To'] = recipient_email
-        msg['Subject'] = subject
-        msg.attach(MIMEText(body, 'html'))
+        # Set up the MIME message
+        message = MIMEMultipart()
+        message["From"] = sender_email
+        message["To"] = recipient_email
+        message["Subject"] = subject
+        message.attach(MIMEText(body, "html"))
 
-        with smtplib.SMTP(smtp_server, smtp_port) as server:
-            server.starttls()
+        # Sending the email
+        with smtplib.SMTP_SSL(smtp_server, smtp_port) as server:
             server.login(login, password)
-            server.sendmail(sender_email, recipient_email, msg.as_string())
-
-        print("Email sent successfully!")
+            server.sendmail(sender_email, recipient_email, message.as_string())
+            print("Email sent successfully!")
 
     except Exception as e:
-        print(f"Error sending email: {e}")
+        print(f"Failed to send email: {e}")
 
-# Example usage
-if __name__ == "__main__":
-    website_url = "https://www.artificialintelligence-news.com/"
-    sender_email = "dkharbanda.diksha@gmail.com"
-    recipient_email = "kharbanda.dikshak@gmail.com"
-    smtp_server = "smtp.gmail.com"
-    smtp_port = 587
-    email_login = "dkharbanda.diksha@gmail.com"
-    email_password = "fprr vmtu puwb vmuv"  # Use App Password if 2FA is enabled
-
-    articles = fetch_articles_from_website(website_url)
-    if articles:
-        print("Articles fetched successfully. Sending email...")
-        send_email(articles, sender_email, recipient_email, smtp_server, smtp_port, email_login, email_password)
-    else:
-        print("No articles found to send via email.")
+# Example usage:
+articles = fetch_articles_from_website("https://www.artificialintelligence-news.com/")  # Replace with the actual website URL
+send_email(articles, "dkharbanda.diksha@gmail.com", "divyanduchoubey@gmail.com", "smtp.gmail.com", 465, "dkharbanda.diksha@gmail.com", "fprr vmtu puwb vmuv")
