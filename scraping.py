@@ -284,5 +284,5 @@ def send_email(articles, sender_email, recipient_email, smtp_server, smtp_port, 
         print(f"Failed to send email: {e}")
 
 # Example usage:
-articles = fetch_articles_from_website("https://www.artificialintelligence-news.com/")  # Replace with the actual website URL
-send_email(articles, "dkharbanda.diksha@gmail.com", "divyanduchoubey@gmail.com", "smtp.gmail.com", 465, "dkharbanda.diksha@gmail.com", "fprr vmtu puwb vmuv")
+articles = fetch_articles_from_website("https://www.cnbctv18.com/tags/generative-ai.htm")  # Replace with the actual website URL
+send_email(articles, "dkharbanda.diksha@gmail.com", "kharbanda.dikshak@gmail.com", "smtp.gmail.com", 465, "dkharbanda.diksha@gmail.com", "fprr vmtu puwb vmuv")
