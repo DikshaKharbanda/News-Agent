@@ -16,7 +16,6 @@ def send_email(sender_email, sender_password, recipient_email, subject, markdown
     <html>
     <head>
         <style>
-            /* General Styles */
             body {{
                 font-family: Arial, sans-serif;
                 background-color: #f4f4f9;
@@ -38,19 +37,8 @@ def send_email(sender_email, sender_password, recipient_email, subject, markdown
                 color: black;
                 line-height: 1.6;
             }}
-            .header h1 {{
-                color: #333;
-            }}
-            .headline {{
-                font-size: 20px;
-                font-weight: bold;
-                color: black;
-                margin-bottom: 10px;
-            }}
-            .description {{
-                font-size: 14px;
-                color: black;
-                line-height: 1.6;
+            .content {{
+                margin-top: 20px;
             }}
             .footer {{
                 text-align: left;
@@ -59,23 +47,27 @@ def send_email(sender_email, sender_password, recipient_email, subject, markdown
                 font-size: 12px;
                 margin-top: 40px;
             }}
+            .footer table {{
+                width: 100%;
+            }}
             .footer img {{
                 width: 120px;
                 height: 120px;
-                margin-bottom: 40px;
+                margin-bottom: 20px;
+            }}
+            .footer td {{
+                padding: 5px;
             }}
             .footer a {{
                 color: blue;
-                text-decoration: none;
+                text-decoration: underline; /* Ensures links are underlined */
             }}
             .footer a:hover {{
                 text-decoration: underline;
-                color: red;
             }}
-            .disclaimer {{
+            .footer p {{
                 font-size: 10px;
                 color: black;
-                line-height: 1.6;
             }}
             @media (min-width: 1024px) {{
                 .footer {{
@@ -89,16 +81,42 @@ def send_email(sender_email, sender_password, recipient_email, subject, markdown
                 .footer a {{
                     font-size: 14px;
                 }}
+                .footer p {{
+                    font-size: 12px;
+                }}
             }}
         </style>
     </head>
     <body>
         <div class="email-container">
             <h1>{subject}</h1>
-            <p class="headline">Headline</p>
-            <p class="description">{html_content}</p>
+            <div class="content">
+                {html_content}
+            </div>
             <div class="footer">
-                <p>© 2025 Your Company Name. All rights reserved.</p>
+                <table>
+                    <tr>
+                        <td style="padding-right: 15px;">
+                            <img src="https://drive.google.com/uc?export=view&id=1ciMZhUymSZeswzqmvhgph4Jd-FVVFPwc" alt="EY Logo">
+                        </td>
+                        <td>
+                            <b>Diksha Kharbanda | Intern</b>
+                            <p>Ernst & Young LLP</p>
+                            <p>Plot number 67, Sector 44, Gurugram, Haryana, 122003, India</p>
+                            <p>Cell: +918572820094 | Email: 
+                                <a href="mailto:dkharbanda.diksha@gmail.com" style="text-decoration: underline;">
+                                    dkharbanda.diksha@gmail.com
+                                </a>
+                            </p>
+                            <p>Website: 
+                                <a href="http://www.ey.com" target="_blank" style="text-decoration: underline;">
+                                    www.ey.com
+                                </a>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+                <p class="disclaimer">The information contained in this communication is intended solely for the use of the individual or entity to whom it is addressed and may contain confidential or privileged material. If you are not the intended recipient, please notify the sender immediately and delete this communication. Any unauthorized use, disclosure, or distribution of the information contained in this communication is prohibited.</p>
             </div>
         </div>
     </body>
@@ -128,8 +146,9 @@ def send_email(sender_email, sender_password, recipient_email, subject, markdown
 # Example usage
 send_email(
     sender_email="dkharbanda.diksha@gmail.com",
-    sender_password="fprr vmtu puwb vmuv",
+    sender_password="fprr vmtu puwb vmuv",  # Replace with your actual email password
     recipient_email="kharbanda.dikshak@gmail.com",
-    subject="Daily Generative AI News",
+    subject="Today's Top Generative AI News",
     markdown_file="news-summaries.md"
 )
+
